@@ -1,4 +1,5 @@
 import express, { Application } from 'express';
+import gridRoutes from './routes/grid';
 
 const app: Application = express(),
     PORT = process.env.PORT || 3000;
@@ -7,6 +8,7 @@ const app: Application = express(),
 app.use(express.json());
 
 // Routes
+app.use('/grid', gridRoutes);
 
 // Start the Server
 app.listen(PORT, () => {
