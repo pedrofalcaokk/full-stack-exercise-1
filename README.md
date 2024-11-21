@@ -12,7 +12,9 @@ A Node.js/Express API that generates and manages a character grid with a possibl
 - Supertest for API testing
 
 ### Features
-TBD
+- Automatic grid generation with value refresh at specific intervals
+- Configurable bias with a set weight percentage
+- Secret code generation
 
 ### Getting Started
 
@@ -44,7 +46,9 @@ npm run lint
 
 ### API Endpoints
 
-TBD
+`GET /grid` - Retrieve the current grid (it's values, timestamp and secret code)
+
+`POST /grid/set-bias` - Set the bias character
 
 ### Project Structure
 ```
