@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express, { Application } from 'express';
 import gridRoutes from './routes/grid';
 
@@ -6,6 +7,7 @@ const app: Application = express(),
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // Routes
 app.use('/grid', gridRoutes);
