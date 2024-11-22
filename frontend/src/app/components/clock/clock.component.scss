@@ -1,0 +1,63 @@
+@use '../../../theme-colors' as colors;
+
+:host {
+    display: block;
+    height: 100px;
+}
+
+.clock {
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--mat-sys-outline); //#673ab7;
+    border-radius: 50%;
+    position: relative;
+    margin: 10px auto;
+}
+
+.hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom;
+    background: var(--mat-sys-primary);
+    margin-left: -1px;
+}
+
+.hour {
+    height: 18px;
+    width: 2px;
+    margin-left: -1px;
+}
+
+.minute {
+    height: 22px;
+    width: 1px;
+}
+
+.second {
+    height: 28px;
+    width: 1px;
+}
+
+.center-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--mat-sys-outline);
+    transform: translate(-50%, -50%);
+}
+
+.mark {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+}
+
+.digital-time {
+    text-align: center;
+    font-size: 0.9rem;
+}
