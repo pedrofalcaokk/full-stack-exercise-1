@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,7 @@ const BIAS_COOLDOWN: number = 4000;
     templateUrl: './grid.component.html',
     styleUrl: './grid.component.scss'
 })
-export class GridComponent {
+export class GridComponent implements OnInit, OnDestroy {
     public grid: string[][] = [];
     public timestamp: string = '';
     public secretCode: string = '';

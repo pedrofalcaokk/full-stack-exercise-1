@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 
 @Component({
     selector: 'app-clock',
@@ -8,7 +8,7 @@ import { Component, Input } from '@angular/core';
     templateUrl: './clock.component.html',
     styleUrl: './clock.component.scss'
 })
-export class ClockComponent {
+export class ClockComponent implements OnChanges {
     @Input() timestamp: string = '';
     hourRotation: string = '';
     minuteRotation: string = '';
