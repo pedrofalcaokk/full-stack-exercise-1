@@ -46,7 +46,7 @@ describe('Grid API Endpoints', () => {
         expect(response.body).toHaveProperty('error', 'Invalid value');
     });
 
-    it('Should fail to set the bias with invalid character', async () => {
+    it('Should fail to set the bias when cooldown is not respected', async () => {
         jest.useFakeTimers();
         jest.advanceTimersByTime(4000); // wait 4 seconds between bias updates
 
