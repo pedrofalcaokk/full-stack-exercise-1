@@ -111,8 +111,6 @@ function refreshGrid(): void {
     setTimeout(() => {
         gridManager.previous = null;
     }, GRID_GRACE_PERIOD);
-
-    console.log('Secret Code:', gridManager.current.secret);
 }
 
 // Utility function to stop automatically generating the grid
