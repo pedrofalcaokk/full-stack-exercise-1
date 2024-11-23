@@ -1,14 +1,14 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { interval, Observable, shareReplay, switchMap } from 'rxjs';
-import { GridResponse, BiasResponse } from '../types/grid.types';
+import { BiasResponse, GridResponse } from '../types/grid.types';
+import { API_URL, POLLING_INTERVAL } from '../utils/constants';
 
 @Injectable({
     providedIn: 'root'
 })
 export class GridService {
-    private apiUrl: string = 'http://localhost:3000'; //TODO: Make this configurable
-    private gridPolling$: Observable<GridResponse> = interval(2000).pipe(
+    private gridPolling$: Observable<GridResponse> = interval(POLLING_INTERVAL).pipe(
         switchMap(() => this.getGrid()),
         shareReplay({ bufferSize: 1, refCount: true })
     );
@@ -19,10 +19,10 @@ export class GridService {
     }
 
     getGrid(): Observable<GridResponse> {
-        return this.http.get<GridResponse>(`${this.apiUrl}/grid`);
+        return this.http.get<GridResponse>(`${API_URL}/grid`);
     }
 
     setBias(character: string): Observable<BiasResponse> {
-        return this.http.post<BiasResponse>(`${this.apiUrl}/grid/set-bias`, { bias: character });
+        return this.http.post<BiasResponse>(`${API_URL}/grid/set-bias`, { bias: character });
     }
 }
