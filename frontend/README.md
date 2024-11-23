@@ -9,7 +9,9 @@ An Angular application that displays a continuously updated character grid with 
 - Jasmine/Karma for testing
 
 ## Features
-TBD
+- Automatic grid updates
+- Bias control with cooldown
+- Animated analog/digital clock
 
 ## Getting Started
 
@@ -29,4 +31,12 @@ ng test
 ```
 
 ## Project Structure
-TBD
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── components/    # UI components
+│   │   ├── services/      # API services
+│   │   ├── types/         # TypeScript interfaces
+│   │   └── utils/         # Constants and utilities
+```
