@@ -16,6 +16,7 @@ const GRID_REFRESH_INTERVAL: number = 2000, // 2 seconds
     BIAS_WEIGHT: number = (ROW_SIZE * COLUMN_SIZE) * 0.2,
     CHAR_LIST: string = 'abcdefghijklmnopqrstuvwxyz',
     BIAS_COOLDOWN: number = 4000, // 4 seconds
+    GRID_STOP_INTERVAL: number = 60000, // 60 seconds
     router: Router = Router();
 
 let grid: Grid = {
@@ -25,10 +26,13 @@ let grid: Grid = {
     secret: '',
     refreshInterval: null,
     lastBiasUpdate: 0,
-};
+},
+    lastGridRequest: number = 0;
 
 // Root endpoint to return the grid
 router.get('/', (req: Request, res: Response) => {
+    lastGridRequest = Date.now();
+
     if (!grid.refreshInterval) {
         refreshGrid();
     }
@@ -60,6 +64,12 @@ router.post('/set-bias', (req: Request, res: Response) => {
 
 // Utility function to refresh the grid
 function refreshGrid(): void {
+    const currentTime: number = Date.now();
+    if (currentTime - lastGridRequest > GRID_STOP_INTERVAL) {
+        stopGridGeneration();
+        return;
+    }
+
     const bias: string = grid.bias;
     const biasPositions = generateBiasPositions(bias, BIAS_WEIGHT, ROW_SIZE, COLUMN_SIZE);
     const values: string[][] = generateGridValues(bias, biasPositions, ROW_SIZE, COLUMN_SIZE, CHAR_LIST);
