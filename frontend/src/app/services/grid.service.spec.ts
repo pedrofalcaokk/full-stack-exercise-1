@@ -1,10 +1,10 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { HttpTestingController } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { GridService } from './grid.service';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+
 import { BiasResponse, GridResponse } from '../types/grid.types';
-import { API_URL } from '../utils/constants';
+import { API_URL, POLLING_INTERVAL } from '../utils/constants';
+import { GridService } from './grid.service';
 
 describe('GridService', () => {
     let service: GridService;
@@ -74,12 +74,12 @@ describe('GridService', () => {
         });
 
         // Request 1
-        tick(2000);
+        tick(POLLING_INTERVAL);
         const req1 = httpMock.expectOne(`${API_URL}/grid`);
         req1.flush(mockGridResponse);
 
         // Request 2
-        tick(2000);
+        tick(POLLING_INTERVAL);
         const req2 = httpMock.expectOne(`${API_URL}/grid`);
         req2.flush(mockGridResponse);
 
