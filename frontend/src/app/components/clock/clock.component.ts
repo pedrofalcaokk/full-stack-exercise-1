@@ -13,7 +13,7 @@ export class ClockComponent implements OnChanges {
     hourRotation: string = '';
     minuteRotation: string = '';
     secondRotation: string = '';
-    clockMarks = Array(12).fill(0).map((_, i) => i);
+    clockMarks: number[] = Array(12).fill(0).map((_, i) => i);
     time: string = '';
 
     ngOnChanges() {

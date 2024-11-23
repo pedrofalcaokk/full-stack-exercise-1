@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, throttleTime } from 'rxjs/operators';
 
 import { GridService } from '../../services/grid.service';
+import { GridResponse } from '../../types/grid.types';
 import { ClockComponent } from '../clock/clock.component';
 
 const BIAS_COOLDOWN: number = 4000;
@@ -40,11 +41,11 @@ export class GridComponent implements OnInit, OnDestroy {
             debounceTime(300),
             distinctUntilChanged(),
             throttleTime(BIAS_COOLDOWN)
-        ).subscribe(value => {
+        ).subscribe((value: string) => {
             this.gridService.setBias(value ?? '').subscribe();
             this.biasControl.disable();
             this.cooldownRemaining = BIAS_COOLDOWN / 1000;
-            const timer = setInterval(() => {
+            const timer: ReturnType<typeof setInterval> = setInterval(() => {
                 this.cooldownRemaining--;
                 if (this.cooldownRemaining <= 0) {
                     clearInterval(timer);
@@ -63,7 +64,7 @@ export class GridComponent implements OnInit, OnDestroy {
         });
 
         // Start the polling procedure
-        this.gridSubscription = this.gridService.getPollingGrid().subscribe(response => {
+        this.gridSubscription = this.gridService.getPollingGrid().subscribe((response: GridResponse) => {
             this.grid = response.values;
             this.timestamp = response.timestamp;
             this.secretCode = response.secret;
