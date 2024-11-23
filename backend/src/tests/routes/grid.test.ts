@@ -1,6 +1,12 @@
-import request from 'supertest';
 import express from 'express';
+import request from 'supertest';
+
 import gridRouter, { stopGridGeneration } from '../../routes/grid';
+import {
+    GRID_BIAS_COOLDOWN,
+    GRID_COLUMN_SIZE,
+    GRID_ROW_SIZE
+} from '../../utils/constants';
 
 const app = express();
 app.use(express.json());
@@ -19,8 +25,8 @@ describe('Grid API Endpoints', () => {
         expect(response.body).toHaveProperty('timestamp');
         expect(response.body).toHaveProperty('secret');
         expect(Array.isArray(response.body.values)).toBe(true);
-        expect(response.body.values.length).toBe(10);
-        expect(response.body.values[0].length).toBe(10);
+        expect(response.body.values.length).toBe(GRID_ROW_SIZE);
+        expect(response.body.values[0].length).toBe(GRID_COLUMN_SIZE);
         expect(response.body.secret.length).toBe(2);
         expect(Number.isInteger(parseInt(response.body.secret))).toBe(true);
     });
@@ -36,7 +42,7 @@ describe('Grid API Endpoints', () => {
 
     it('Should fail to set the bias with invalid character', async () => {
         jest.useFakeTimers();
-        jest.advanceTimersByTime(4000); // wait 4 seconds between bias updates
+        jest.advanceTimersByTime(GRID_BIAS_COOLDOWN); // wait 4 seconds between bias updates
 
         const response = await request(app)
             .post('/grid/set-bias')
@@ -48,7 +54,7 @@ describe('Grid API Endpoints', () => {
 
     it('Should fail to set the bias when cooldown is not respected', async () => {
         jest.useFakeTimers();
-        jest.advanceTimersByTime(4000); // wait 4 seconds between bias updates
+        jest.advanceTimersByTime(GRID_BIAS_COOLDOWN); // wait 4 seconds between bias updates
 
         await request(app)
             .post('/grid/set-bias')
