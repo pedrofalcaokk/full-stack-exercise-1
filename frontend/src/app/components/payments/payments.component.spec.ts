@@ -1,7 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { PaymentsComponent } from './payments.component';
@@ -70,9 +70,8 @@ describe('PaymentsComponent', () => {
         paymentsService.addPayment.and.returnValue(of(mockAddPaymentResponse));
         snackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
 
-        gridService = jasmine.createSpyObj('GridService', ['getSecret'], {
-            secret$: secretSubject.asObservable()
-        });
+        gridService = jasmine.createSpyObj('GridService', ['getPollingSecret']);
+        gridService.getPollingSecret.and.returnValue(secretSubject);
 
         await TestBed.configureTestingModule({
             imports: [PaymentsComponent],

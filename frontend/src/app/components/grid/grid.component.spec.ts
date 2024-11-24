@@ -7,6 +7,7 @@ import { GridService } from '../../services/grid.service';
 import { GridResponse } from '../../types/grid.types';
 import { BIAS_COOLDOWN, BIAS_DEBOUNCE, POLLING_INTERVAL } from '../../utils/constants';
 import { GridComponent } from './grid.component';
+import { provideRouter } from '@angular/router';
 
 describe('GridComponent', () => {
     const mockGridResponse: GridResponse = {
@@ -31,11 +32,9 @@ describe('GridComponent', () => {
         gridService: jasmine.SpyObj<GridService>;
 
     beforeEach(async () => {
-        gridService = jasmine.createSpyObj('GridService', ['getGrid', 'setBias', 'getPollingGrid'], {
-            secret$: of('55')
-        });
-        gridService.getGrid.and.returnValue(of(mockGridResponse));
+        gridService = jasmine.createSpyObj('GridService', ['setBias', 'getPollingGrid', 'getPollingSecret']);
         gridService.getPollingGrid.and.returnValue(of(mockGridResponse));
+        gridService.getPollingSecret.and.returnValue(of('12'));
 
         await TestBed.configureTestingModule({
             imports: [GridComponent],
@@ -63,7 +62,7 @@ describe('GridComponent', () => {
 
     it('Should generate the grid properly', () => {
         // Generate the grid
-        component.startGridGeneration();
+        component.startPollingGrid();
 
         // Check if all the components properties are set properly
         expect(component.grid).toEqual(mockGridResponse.values);
@@ -73,7 +72,7 @@ describe('GridComponent', () => {
 
     it('Should cleanup subscriptions on destroy', () => {
         // Create gridSubscription
-        component.startGridGeneration();
+        component.startPollingGrid();
 
         // Create biasSubscription
         component.biasControl.setValue('a');
@@ -194,8 +193,8 @@ describe('GridComponent', () => {
     }));
 
     it('Should handle grid service errors gracefully', fakeAsync(() => {
-        gridService.getGrid.and.returnValue(throwError(() => new Error('Network error')));
-        component.startGridGeneration();
+        gridService.getPollingGrid.and.returnValue(throwError(() => new Error('Network error')));
+        component.startPollingGrid();
         tick(POLLING_INTERVAL);
         expect(component.grid).toEqual(Array(10).fill(null).map(() => Array(10).fill('')));
     }));
@@ -215,7 +214,7 @@ describe('GridComponent', () => {
         };
 
         gridService.getPollingGrid.and.returnValue(of(updatedResponse));
-        component.startGridGeneration();
+        component.startPollingGrid();
         tick();
 
         expect(component.timestamp).toBe(updatedResponse.timestamp);
