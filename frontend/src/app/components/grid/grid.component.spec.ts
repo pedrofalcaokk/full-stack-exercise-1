@@ -31,7 +31,9 @@ describe('GridComponent', () => {
         gridService: jasmine.SpyObj<GridService>;
 
     beforeEach(async () => {
-        gridService = jasmine.createSpyObj('GridService', ['getGrid', 'setBias', 'getPollingGrid']);
+        gridService = jasmine.createSpyObj('GridService', ['getGrid', 'setBias', 'getPollingGrid'], {
+            secret$: of('55')
+        });
         gridService.getGrid.and.returnValue(of(mockGridResponse));
         gridService.getPollingGrid.and.returnValue(of(mockGridResponse));
 
@@ -66,7 +68,6 @@ describe('GridComponent', () => {
         // Check if all the components properties are set properly
         expect(component.grid).toEqual(mockGridResponse.values);
         expect(component.timestamp).toEqual(mockGridResponse.timestamp);
-        expect(component.secretCode).toEqual(mockGridResponse.secret);
         expect(component.gridSubscription).toBeTruthy();
     });
 
@@ -218,7 +219,6 @@ describe('GridComponent', () => {
         tick();
 
         expect(component.timestamp).toBe(updatedResponse.timestamp);
-        expect(component.secretCode).toBe(updatedResponse.secret);
     }));
 
     it('Should cleanup interval timer on component destroy', fakeAsync(() => {

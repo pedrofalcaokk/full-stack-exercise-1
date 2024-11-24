@@ -12,18 +12,18 @@ import { GridService } from '../../services/grid.service';
 import { GridResponse } from '../../types/grid.types';
 import { BIAS_COOLDOWN, BIAS_DEBOUNCE } from '../../utils/constants';
 import { ClockComponent } from '../clock/clock.component';
+import { GridSecretComponent } from '../grid-secret/grid-secret.component';
 
 @Component({
     selector: 'app-grid',
     standalone: true,
-    imports: [ClockComponent, CommonModule, MatButtonModule, MatIconModule, MatInputModule, MatProgressSpinnerModule, ReactiveFormsModule],
+    imports: [ClockComponent, CommonModule, GridSecretComponent, MatButtonModule, MatIconModule, MatInputModule, MatProgressSpinnerModule, ReactiveFormsModule],
     templateUrl: './grid.component.html',
     styleUrl: './grid.component.scss'
 })
 export class GridComponent implements OnInit, OnDestroy {
     public grid: string[][] = [];
     public timestamp: string = '';
-    public secretCode: string = '';
     public biasControl: FormControl = new FormControl('');
     public cooldownRemaining: number = 0;
     public gridSubscription!: Subscription;
@@ -77,13 +77,11 @@ export class GridComponent implements OnInit, OnDestroy {
     private updateGridState(response: GridResponse): void {
         this.grid = response.values;
         this.timestamp = response.timestamp;
-        this.secretCode = response.secret;
     }
 
     private resetGridState(): void {
         this.grid = Array(10).fill(null).map(() => Array(10).fill(''));
         this.timestamp = '';
-        this.secretCode = '';
     }
 
     ngOnDestroy() {
