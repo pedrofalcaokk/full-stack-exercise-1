@@ -58,8 +58,7 @@ export class PaymentsComponent implements OnInit, OnDestroy {
         }
         );
 
-        // Update the payments list immediately and start the polling procedure
-        this.getPayments();
+        // Start the polling procedure
         this.startPollingPayments();
     }
 

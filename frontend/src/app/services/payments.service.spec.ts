@@ -87,6 +87,8 @@ describe('PaymentsService', () => {
             expect(response).toEqual(mockResponse);
             callCount++;
         });
+        const req = httpMock.expectOne(`${API_URL}/payments`);
+        req.flush(mockResponse);
 
         // Request 1
         tick(POLLING_INTERVAL);
@@ -101,7 +103,7 @@ describe('PaymentsService', () => {
         subscription.unsubscribe();
         tick();
 
-        expect(callCount).toBe(2);
+        expect(callCount).toBe(3);
     }));
 
     it('Should handle http errors', () => {

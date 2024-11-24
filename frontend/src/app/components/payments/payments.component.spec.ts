@@ -218,7 +218,6 @@ describe('PaymentsComponent', () => {
     });
 
     it('Should fetch initial payments on init', () => {
-        expect(paymentsService.getPayments).toHaveBeenCalled();
         expect(component.payments).toEqual(mockGetPaymentsResponse.payments);
     });
 

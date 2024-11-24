@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { interval, Observable, shareReplay, switchMap } from 'rxjs';
+import { interval, Observable, shareReplay, startWith, switchMap } from 'rxjs';
 import { GetPaymentsResponse, AddPaymentResponse } from '../types/payments.types';
 import { API_URL, POLLING_INTERVAL } from '../utils/constants';
 
@@ -9,7 +9,8 @@ import { API_URL, POLLING_INTERVAL } from '../utils/constants';
 })
 export class PaymentsService {
     private paymentsPolling$: Observable<GetPaymentsResponse> = interval(POLLING_INTERVAL).pipe(
-        switchMap(() => this.getPayments()),
+        startWith(0),
+        switchMap(() => this.http.get<GetPaymentsResponse>(`${API_URL}/payments`)),
         shareReplay({ bufferSize: 1, refCount: true })
     );
 
