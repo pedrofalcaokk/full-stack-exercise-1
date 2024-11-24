@@ -1,0 +1,79 @@
+<div class="container">
+
+    <app-grid-secret></app-grid-secret>
+
+    <form class="paymentForm" [formGroup]="paymentForm" (ngSubmit)="addPayment()">
+        <mat-form-field>
+            <mat-label>Payment</mat-label>
+            <input matInput type="text" formControlName="name">
+            @if (paymentForm.get('name')?.hasError('required')) {
+            <mat-error>The payment name is <strong>required</strong></mat-error>
+            }
+            @if (paymentForm.get('name')?.hasError('minlength') &&
+            !paymentForm.get('name')?.hasError('required')) {
+            <mat-error>The payment name must be at least <strong>3</strong> characters</mat-error>
+            }
+            @if (paymentForm.get('name')?.hasError('maxlength') &&
+            !paymentForm.get('name')?.hasError('required')) {
+            <mat-error>The payment name cannot exceed <strong>100</strong> characters</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Amount</mat-label>
+            <input matInput type="number" formControlName="amount">
+            @if (paymentForm.get('amount')?.hasError('min') &&
+            !paymentForm.get('amount')?.hasError('required'))
+            {
+            <mat-error>The amount must 1 or above</mat-error>
+            }
+            @if (paymentForm.get('amount')?.hasError('required')) {
+            <mat-error>The amount is <strong>required</strong></mat-error>
+            }
+        </mat-form-field>
+
+        <button mat-flat-button class="addButton" [disabled]="!paymentForm.valid">
+            <mat-icon>add</mat-icon>
+            ADD
+        </button>
+    </form>
+
+    <div class="table-container">
+        <mat-table [dataSource]="payments" class="mat-elevation-z8">
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+                <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+                <mat-cell *matCellDef="let payment"> {{payment.name}} </mat-cell>
+            </ng-container>
+
+            <!-- Amount Column -->
+            <ng-container matColumnDef="amount">
+                <mat-header-cell *matHeaderCellDef> Amount </mat-header-cell>
+                <mat-cell *matCellDef="let payment"> {{payment.amount}} </mat-cell>
+            </ng-container>
+
+            <!-- Code Column -->
+            <ng-container matColumnDef="code">
+                <mat-header-cell *matHeaderCellDef> Code </mat-header-cell>
+                <mat-cell *matCellDef="let payment"> {{payment.secret}} </mat-cell>
+            </ng-container>
+
+            <!-- Grid Values Column -->
+            <ng-container matColumnDef="gridValues">
+                <mat-header-cell *matHeaderCellDef> Grid </mat-header-cell>
+                <mat-cell *matCellDef="let payment">
+                    <div class="mini-grid">
+                        <ng-container *ngFor="let row of payment.grid">
+                            <div *ngFor="let cell of row" class="grid-cell">
+                                {{cell}}
+                            </div>
+                        </ng-container>
+                    </div>
+                </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+    </div>
+</div>
