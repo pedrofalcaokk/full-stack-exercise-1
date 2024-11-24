@@ -38,30 +38,39 @@ export class GridComponent implements OnInit, OnDestroy {
 
         // Set the bias if the input changes values
         this.biasSubscription = this.biasControl.valueChanges.pipe(
-            debounceTime(BIAS_DEBOUNCE), // Wait x ms after the last keystroke before emitting
-            distinctUntilChanged(), // Only emit if value is different from the previous one
-            throttleTime(BIAS_COOLDOWN) // Enforce a cooldown period
+            debounceTime(BIAS_DEBOUNCE),
+            distinctUntilChanged()
         ).subscribe((value: string) => {
-            this.gridService.setBias(value ?? '').subscribe();
-            this.biasControl.disable();
-            this.cooldownRemaining = BIAS_COOLDOWN / 1000;
-            this.cooldownTimer = setInterval(() => {
-                this.cooldownRemaining--;
-                if (this.cooldownRemaining <= 0) {
-                    clearInterval(this.cooldownTimer);
-                    this.biasControl.enable();
-                }
-            }, 1000);
+            if (this.gridSubscription) {
+                this.setBias(value);
+            }
         });
     }
 
     public startPollingGrid(): void {
+        if (this.biasControl.value) {
+            this.setBias(this.biasControl.value);
+        }
+
         this.gridSubscription = this.gridService.getPollingGrid().subscribe({
             next: (response: GridResponse) => {
                 this.updateGridState(response);
             },
             error: () => this.resetGridState()
         });
+    }
+
+    private setBias(value: string): void {
+        this.gridService.setBias(value ?? '').subscribe();
+        this.biasControl.disable();
+        this.cooldownRemaining = BIAS_COOLDOWN / 1000;
+        this.cooldownTimer = setInterval(() => {
+            this.cooldownRemaining--;
+            if (this.cooldownRemaining <= 0) {
+                clearInterval(this.cooldownTimer);
+                this.biasControl.enable();
+            }
+        }, 1000);
     }
 
     private updateGridState(response: GridResponse): void {
