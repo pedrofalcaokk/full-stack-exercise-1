@@ -55,17 +55,7 @@ export class GridComponent implements OnInit, OnDestroy {
         });
     }
 
-    public startGridGeneration() {
-        this.gridService.getGrid().subscribe({
-            next: (response) => {
-                this.updateGridState(response);
-                this.startPollingGrid();
-            },
-            error: () => this.resetGridState()
-        });
-    }
-
-    private startPollingGrid(): void {
+    public startPollingGrid(): void {
         this.gridSubscription = this.gridService.getPollingGrid().subscribe({
             next: (response: GridResponse) => {
                 this.updateGridState(response);

@@ -51,11 +51,11 @@ export class PaymentsComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.secretSubscription = this.gridService.secret$.subscribe(
-            (secret) => {
+        this.secretSubscription = this.gridService.getPollingSecret().subscribe({
+            next: (secret: string) => {
                 this.secret = secret;
-                this.paymentForm.updateValueAndValidity();
             }
+        }
         );
 
         // Update the payments list immediately and start the polling procedure

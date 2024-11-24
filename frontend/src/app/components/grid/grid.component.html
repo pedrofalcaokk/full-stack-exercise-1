@@ -18,7 +18,7 @@
         <app-clock [timestamp]="timestamp"></app-clock>
 
         <button mat-flat-button class="generate-button" [disabled]="!!gridSubscription"
-            (click)="startGridGeneration()">Generate
+            (click)="startPollingGrid()">Generate
             2D
             grid</button>
     </div>

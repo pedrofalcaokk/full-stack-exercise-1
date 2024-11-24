@@ -16,8 +16,11 @@ export class GridSecretComponent implements OnInit {
     constructor(private gridService: GridService) { }
 
     ngOnInit(): void {
-        this.subscription = this.gridService.secret$.subscribe(
-            secret => this.secret = secret
+        this.subscription = this.gridService.getPollingSecret().subscribe({
+            next: (secret: string) => {
+                this.secret = secret;
+            }
+        }
         );
     }
 
