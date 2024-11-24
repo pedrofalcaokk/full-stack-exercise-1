@@ -1,0 +1,13 @@
+.spacer {
+    flex: 1 1 auto;
+}
+
+.mat-toolbar {
+    .active {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.nav-bar {
+    background-color: var(--mat-sys-primary-container);
+}
