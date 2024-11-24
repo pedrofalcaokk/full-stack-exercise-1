@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 
 import { HttpError } from '../utils/errors';
-import { getGridValues, isGridInitialized, validateSecretCode } from './grid';
+import { getGridValues, isGridInitialized } from './grid';
 
 interface Payment {
     name: string;
@@ -36,15 +36,10 @@ router.post('/add', (req: Request, res: Response) => {
         validatePaymentName(req.body.name);
         validatePaymentAmount(req.body.amount);
 
-        // Validate the secret-code
-        if (!validateSecretCode(req.body.secret)) {
-            res.status(401).json({ error: "Invalid secret code" });
-            return;
-        }
-
+        // Get the grid values
         const gridValues = getGridValues(req.body.secret);
         if (!gridValues) {
-            res.status(404).json({ error: "Invalid or expired grid state" });
+            res.status(401).json({ error: "Invalid secret code" });
             return;
         }
 
@@ -60,8 +55,6 @@ router.post('/add', (req: Request, res: Response) => {
     } catch (error) {
         if (error instanceof HttpError) {
             res.status(error.statusCode).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: "Internal server error" });
         }
     }
 });

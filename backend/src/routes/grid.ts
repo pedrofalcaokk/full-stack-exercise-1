@@ -121,14 +121,6 @@ export function stopGridGeneration(): void {
     }
 }
 
-// Utility function to validate the secret code
-export function validateSecretCode(secret: string): boolean {
-    return (
-        gridManager.current.secret === secret ||
-        (gridManager.previous?.secret === secret)
-    );
-}
-
 // Utility function to get the grid values
 export function getGridValues(secret: string): string[][] | null {
     if (gridManager.current.secret === secret) {
@@ -146,6 +138,11 @@ export function isGridInitialized(): boolean {
         isGridUpToDate: boolean = (currentTime - gridManager.lastGridRequest < GRID_STOP_INTERVAL);
 
     return !!gridManager.current.values.length && isGridUpToDate;
+}
+
+// Utility function to check if the grid is getting generated automatically
+export function isGridGenerating(): boolean {
+    return gridManager.refreshInterval !== null;
 }
 
 export default router;

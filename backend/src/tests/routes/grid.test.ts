@@ -1,11 +1,12 @@
 import express from 'express';
 import request from 'supertest';
 
-import gridRouter, { stopGridGeneration } from '../../routes/grid';
+import gridRouter, { isGridGenerating, stopGridGeneration } from '../../routes/grid';
 import {
     GRID_BIAS_COOLDOWN,
     GRID_COLUMN_SIZE,
-    GRID_ROW_SIZE
+    GRID_ROW_SIZE,
+    GRID_STOP_INTERVAL
 } from '../../utils/constants';
 
 const app = express();
@@ -13,6 +14,10 @@ app.use(express.json());
 app.use('/grid', gridRouter);
 
 describe('Grid API Endpoints', () => {
+    beforeAll(() => {
+        jest.useFakeTimers();
+    });
+
     afterAll(async () => {
         stopGridGeneration();
     });
@@ -41,7 +46,6 @@ describe('Grid API Endpoints', () => {
     });
 
     it('Should fail to set the bias with invalid character', async () => {
-        jest.useFakeTimers();
         jest.advanceTimersByTime(GRID_BIAS_COOLDOWN); // wait 4 seconds between bias updates
 
         const response = await request(app)
@@ -53,7 +57,6 @@ describe('Grid API Endpoints', () => {
     });
 
     it('Should fail to set the bias when cooldown is not respected', async () => {
-        jest.useFakeTimers();
         jest.advanceTimersByTime(GRID_BIAS_COOLDOWN); // wait 4 seconds between bias updates
 
         await request(app)
@@ -67,5 +70,15 @@ describe('Grid API Endpoints', () => {
         expect(response.status).toBe(429);
         expect(response.body).toHaveProperty('error', 'Please wait 4 seconds between bias updates');
         expect(response.body).toHaveProperty('remainingTime');
+    });
+
+    it('Should stop grid generation after inactivity period', async () => {
+        await request(app).get('/grid');
+        expect(isGridGenerating()).toBe(true);
+
+        jest.advanceTimersByTime(GRID_STOP_INTERVAL);
+        jest.runAllTimers();
+
+        expect(isGridGenerating()).toBe(false);
     });
 });
