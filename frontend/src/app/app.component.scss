@@ -1,13 +1,33 @@
+mat-sidenav-container {
+    height: 100vh;
+}
+
+mat-sidenav {
+    width: 250px;
+}
+
+.nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
 .spacer {
     flex: 1 1 auto;
 }
 
-.mat-toolbar {
-    .active {
-        background-color: rgba(255, 255, 255, 0.1);
+.menu-button {
+    display: none;
+
+    @media (max-width: 768px) {
+        display: block;
     }
 }
 
-.nav-bar {
-    background-color: var(--mat-sys-primary-container);
+.desktop-menu {
+    display: block;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
 }
