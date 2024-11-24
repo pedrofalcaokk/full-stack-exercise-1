@@ -1,7 +1,7 @@
 <mat-toolbar class="nav-bar">
     <span>Frontend</span>
     <span class="spacer"></span>
-    <button mat-button routerLink="/" routerLinkActive="active">Grid</button>
+    <button mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Grid</button>
     <button mat-button routerLink="/payments" routerLinkActive="active">Payments</button>
 </mat-toolbar>
 
