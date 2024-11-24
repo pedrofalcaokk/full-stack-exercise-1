@@ -44,9 +44,50 @@ npm run lint
 
 ## API Endpoints
 
-`GET /grid` - Retrieve the current grid (it's values, timestamp and secret code)
+### GET /grid
+Returns the current state of the grid.
 
-`POST /grid/set-bias` - Set the bias character
+**Response:**
+```json
+{
+    "values": string[][],     // 10x10 grid of characters
+    "timestamp": string,      // Grid creation timestamp
+    "secret": string         // 2-digit secret code
+}
+```
+
+### POST /grid/set-bias
+Sets a bias character that will appear more frequently in the grid.
+
+**Request Body:**
+
+```json
+{
+    "bias": string  // Single character to use as bias
+}
+```
+
+**Successful Response:**
+
+```json
+{
+    "message": "Bias set successfully"
+}
+```
+
+**Response for invalid characters**
+
+```json
+{
+  "error": "Invalid value"
+}
+```
+
+**Constraints:**
+
+- Bias must be a single character from the allowed character set (a-z)
+- 4-second cooldown period between bias changes
+- Invalid characters return 400 status with error message
 
 ## Project Structure
 ```
