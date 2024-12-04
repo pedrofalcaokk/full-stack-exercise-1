@@ -1,6 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@use './theme-colors' as colors;
+@include mat.core();
 
-html,
+// My bullshit starts here
+
+html {
+    color-scheme: dark;
+    @include mat.theme((color: colors.$primary-palette,
+            typography: Roboto,
+            density: 0,
+        ));
+}
+
+
 body {
     height: 100%;
 }
@@ -9,3 +21,5 @@ body {
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+// my bullshit ends here

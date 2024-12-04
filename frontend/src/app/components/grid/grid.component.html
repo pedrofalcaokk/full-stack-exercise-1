@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="header-fields">
+
+        <div class="bias-control">
+            <mat-form-field>
+                <mat-label>Character</mat-label>
+                <input matInput type="text" maxlength="1" (keypress)="$event.charCode >= 97 && $event.charCode <= 122"
+                    [formControl]="biasControl">
+            </mat-form-field>
+
+            <div class="cooldown-indicator" *ngIf="cooldownRemaining > 0">
+                <mat-progress-spinner mode="determinate" [value]="(cooldownRemaining / 4) * 100" diameter="20">
+                </mat-progress-spinner>
+                <span>{{cooldownRemaining}}s</span>
+            </div>
+        </div>
+
+        <app-clock [timestamp]="timestamp"></app-clock>
+
+        <button mat-flat-button class="generate-button" [disabled]="!!gridSubscription"
+            (click)="startGridGeneration()">Generate
+            2D
+            grid</button>
+    </div>
+
+    <div class="grid">
+        <div *ngFor="let row of grid" class="row">
+            <span *ngFor="let cell of row" class="cell">{{cell}}</span>
+        </div>
+    </div>
+
+    <div class="secret-field-container">
+        <p class="secret-field">Your Code: {{secretCode}}</p>
+    </div>
+</div>

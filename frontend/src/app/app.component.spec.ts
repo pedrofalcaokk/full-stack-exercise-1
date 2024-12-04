@@ -1,29 +1,38 @@
-import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
 import { AppComponent } from './app.component';
+import { GridComponent } from './components/grid/grid.component';
+import { GridService } from './services/grid.service';
 
 describe('AppComponent', () => {
+    let component: AppComponent;
+    let fixture: ComponentFixture<AppComponent>;
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [AppComponent],
+            imports: [
+                AppComponent,
+                GridComponent,
+            ],
+            providers: [
+                GridService,
+                provideHttpClient(),
+                provideAnimationsAsync()
+            ]
         }).compileComponents();
-    });
 
-    it('should create the app', () => {
-        const fixture = TestBed.createComponent(AppComponent);
-        const app = fixture.componentInstance;
-        expect(app).toBeTruthy();
-    });
-
-    it(`should have the 'frontend' title`, () => {
-        const fixture = TestBed.createComponent(AppComponent);
-        const app = fixture.componentInstance;
-        expect(app.title).toEqual('frontend');
-    });
-
-    it('should render title', () => {
-        const fixture = TestBed.createComponent(AppComponent);
+        fixture = TestBed.createComponent(AppComponent);
+        component = fixture.componentInstance;
         fixture.detectChanges();
-        const compiled = fixture.nativeElement as HTMLElement;
-        expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
+    });
+
+    it('Should create the app', () => {
+        expect(component).toBeTruthy();
+    });
+
+    it(`Should have the 'frontend' title`, () => {
+        expect(component.title).toEqual('frontend');
     });
 });
