@@ -1,63 +1,80 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
+
+import {
+    GRID_BIAS_COOLDOWN,
+    GRID_BIAS_WEIGHT,
+    GRID_CHAR_LIST,
+    GRID_COLUMN_SIZE,
+    GRID_GRACE_PERIOD,
+    GRID_REFRESH_INTERVAL,
+    GRID_ROW_SIZE,
+    GRID_STOP_INTERVAL
+} from '../utils/constants';
 import { generateBiasPositions, generateGridValues, generateSecretCode } from '../utils/gridUtils';
 
-interface Grid {
+interface GridState {
     values: string[][];
     bias: string;
     timestamp: Date;
     secret: string;
-    refreshInterval: NodeJS.Timeout | null;
-    lastBiasUpdate: number;
 }
 
-const GRID_REFRESH_INTERVAL: number = 2000, // 2 seconds
-    ROW_SIZE: number = 10,
-    COLUMN_SIZE: number = 10,
-    BIAS_WEIGHT: number = (ROW_SIZE * COLUMN_SIZE) * 0.2,
-    CHAR_LIST: string = 'abcdefghijklmnopqrstuvwxyz',
-    BIAS_COOLDOWN: number = 4000, // 4 seconds
-    GRID_STOP_INTERVAL: number = 60000, // 60 seconds
-    router: Router = Router();
+interface GridManager {
+    current: GridState;
+    previous: GridState | null;
+    refreshInterval: NodeJS.Timeout | null;
+    lastBiasUpdate: number;
+    lastGridRequest: number;
+}
 
-let grid: Grid = {
-    values: [],
-    bias: '',
-    timestamp: new Date(),
-    secret: '',
+const router: Router = Router();
+
+const gridManager: GridManager = {
+    current: {
+        values: [],
+        bias: '',
+        timestamp: new Date(),
+        secret: '',
+    },
+    previous: null,
     refreshInterval: null,
     lastBiasUpdate: 0,
-},
-    lastGridRequest: number = 0;
+    lastGridRequest: 0
+};
 
 // Root endpoint to return the grid
 router.get('/', (req: Request, res: Response) => {
-    lastGridRequest = Date.now();
+    gridManager.lastGridRequest = Date.now();
 
-    if (!grid.refreshInterval) {
+    if (!gridManager.refreshInterval) {
         refreshGrid();
     }
-    res.json({ values: grid.values, timestamp: grid.timestamp.toISOString(), secret: grid.secret });
+    res.json({
+        values: gridManager.current.values,
+        timestamp: gridManager.current.timestamp.toISOString(),
+        secret: gridManager.current.secret
+    });
 });
 
 // PUT endpoint to update the bias and refresh the grid
 router.post('/set-bias', (req: Request, res: Response) => {
     const currentTime: number = Date.now();
 
-    if (currentTime - grid.lastBiasUpdate < BIAS_COOLDOWN) {
+    if (currentTime - gridManager.lastBiasUpdate < GRID_BIAS_COOLDOWN) {
         res.status(429).json({
             error: "Please wait 4 seconds between bias updates",
-            remainingTime: (BIAS_COOLDOWN - (currentTime - grid.lastBiasUpdate)) / 1000
+            remainingTime: (GRID_BIAS_COOLDOWN - (currentTime - gridManager.lastBiasUpdate)) / 1000
         });
         return;
     }
 
-    if (!CHAR_LIST.includes(req.body.bias) && req.body.bias !== '') {
+    if (!GRID_CHAR_LIST.includes(req.body.bias) && req.body.bias !== '') {
         res.status(400).json({ error: "Invalid value" });
         return;
     }
 
-    grid.bias = req.body.bias;
-    grid.lastBiasUpdate = currentTime;
+    gridManager.current.bias = req.body.bias;
+    gridManager.lastBiasUpdate = currentTime;
     refreshGrid();
     res.json({ message: 'Bias set successfully' });
 });
@@ -65,36 +82,67 @@ router.post('/set-bias', (req: Request, res: Response) => {
 // Utility function to refresh the grid
 function refreshGrid(): void {
     const currentTime: number = Date.now();
-    if (currentTime - lastGridRequest > GRID_STOP_INTERVAL) {
+    if (currentTime - gridManager.lastGridRequest > GRID_STOP_INTERVAL) {
         stopGridGeneration();
         return;
     }
 
-    const bias: string = grid.bias;
-    const biasPositions = generateBiasPositions(bias, BIAS_WEIGHT, ROW_SIZE, COLUMN_SIZE);
-    const values: string[][] = generateGridValues(bias, biasPositions, ROW_SIZE, COLUMN_SIZE, CHAR_LIST);
+    const bias: string = gridManager.current.bias;
+    const biasPositions = generateBiasPositions(bias, GRID_BIAS_WEIGHT, GRID_ROW_SIZE, GRID_COLUMN_SIZE);
+    const values: string[][] = generateGridValues(bias, biasPositions, GRID_ROW_SIZE, GRID_COLUMN_SIZE, GRID_CHAR_LIST);
     const timestamp = new Date();
 
-    if (!grid.refreshInterval) {
-        grid.refreshInterval = setInterval(refreshGrid, GRID_REFRESH_INTERVAL);
+    if (!gridManager.refreshInterval) {
+        gridManager.refreshInterval = setInterval(refreshGrid, GRID_REFRESH_INTERVAL);
     }
 
-    grid = {
+    // Store current state as previous before updating
+    gridManager.previous = { ...gridManager.current };
+
+    // Update current state
+    gridManager.current = {
         values,
         bias,
         timestamp,
         secret: generateSecretCode(values, timestamp),
-        refreshInterval: grid.refreshInterval,
-        lastBiasUpdate: grid.lastBiasUpdate,
     };
+
+    // Clear previous state after grace period
+    setTimeout(() => {
+        gridManager.previous = null;
+    }, GRID_GRACE_PERIOD);
 }
 
 // Utility function to stop automatically generating the grid
 export function stopGridGeneration(): void {
-    if (grid.refreshInterval) {
-        clearInterval(grid.refreshInterval);
-        grid.refreshInterval = null;
+    if (gridManager.refreshInterval) {
+        clearInterval(gridManager.refreshInterval);
+        gridManager.refreshInterval = null;
     }
+}
+
+// Utility function to get the grid values
+export function getGridValues(secret: string): string[][] | null {
+    if (gridManager.current.secret === secret) {
+        return gridManager.current.values;
+    }
+    if (gridManager.previous?.secret === secret) {
+        return gridManager.previous.values;
+    }
+    return null;
+}
+
+// Utility function to check if the grid is initialized and up to date
+export function isGridInitialized(): boolean {
+    const currentTime: number = Date.now(),
+        isGridUpToDate: boolean = (currentTime - gridManager.lastGridRequest < GRID_STOP_INTERVAL);
+
+    return !!gridManager.current.values.length && isGridUpToDate;
+}
+
+// Utility function to check if the grid is getting generated automatically
+export function isGridGenerating(): boolean {
+    return gridManager.refreshInterval !== null;
 }
 
 export default router;

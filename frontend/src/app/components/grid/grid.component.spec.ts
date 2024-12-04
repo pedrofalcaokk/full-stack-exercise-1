@@ -7,6 +7,7 @@ import { GridService } from '../../services/grid.service';
 import { GridResponse } from '../../types/grid.types';
 import { BIAS_COOLDOWN, BIAS_DEBOUNCE, POLLING_INTERVAL } from '../../utils/constants';
 import { GridComponent } from './grid.component';
+import { provideRouter } from '@angular/router';
 
 describe('GridComponent', () => {
     const mockGridResponse: GridResponse = {
@@ -31,9 +32,9 @@ describe('GridComponent', () => {
         gridService: jasmine.SpyObj<GridService>;
 
     beforeEach(async () => {
-        gridService = jasmine.createSpyObj('GridService', ['getGrid', 'setBias', 'getPollingGrid']);
-        gridService.getGrid.and.returnValue(of(mockGridResponse));
+        gridService = jasmine.createSpyObj('GridService', ['setBias', 'getPollingGrid', 'getPollingSecret']);
         gridService.getPollingGrid.and.returnValue(of(mockGridResponse));
+        gridService.getPollingSecret.and.returnValue(of('12'));
 
         await TestBed.configureTestingModule({
             imports: [GridComponent],
@@ -61,18 +62,17 @@ describe('GridComponent', () => {
 
     it('Should generate the grid properly', () => {
         // Generate the grid
-        component.startGridGeneration();
+        component.startPollingGrid();
 
         // Check if all the components properties are set properly
         expect(component.grid).toEqual(mockGridResponse.values);
         expect(component.timestamp).toEqual(mockGridResponse.timestamp);
-        expect(component.secretCode).toEqual(mockGridResponse.secret);
         expect(component.gridSubscription).toBeTruthy();
     });
 
     it('Should cleanup subscriptions on destroy', () => {
         // Create gridSubscription
-        component.startGridGeneration();
+        component.startPollingGrid();
 
         // Create biasSubscription
         component.biasControl.setValue('a');
@@ -86,6 +86,7 @@ describe('GridComponent', () => {
     });
 
     it('Should respect debounce period when setting bias', fakeAsync(() => {
+        component.startPollingGrid();
         const setBiasSpy = gridService.setBias.and.returnValue(of({ message: 'Bias set successfully' }));
 
         // Set the bias value
@@ -104,6 +105,7 @@ describe('GridComponent', () => {
     }));
 
     it('Should not call setBias when value changes to the previous one', fakeAsync(() => {
+        component.startPollingGrid();
         const setBiasSpy = gridService.setBias.and.returnValue(of({ message: 'Bias set successfully' }));
 
         // Set the bias value
@@ -122,32 +124,30 @@ describe('GridComponent', () => {
     }));
 
     it('Should enforce cooldown period', fakeAsync(() => {
+        component.startPollingGrid();
         const setBiasSpy = gridService.setBias.and.returnValue(of({ message: 'Bias set successfully' }));
 
-        // Set the bias value
+        // Set initial bias and wait for debounce
         component.biasControl.setValue('a');
-
-        // Fast-forward debounce period
         tick(BIAS_DEBOUNCE);
-        expect(setBiasSpy).toHaveBeenCalledTimes(1);
-        expect(component.cooldownRemaining).toBe(BIAS_COOLDOWN / 1000);
 
-        // Try to set bias again within the cooldown period
+        expect(setBiasSpy).toHaveBeenCalledTimes(1);
+        expect(component.biasControl.disabled).toBeTrue();
+
+        // Wait for cooldown to complete
+        tick(BIAS_COOLDOWN);
+        expect(component.biasControl.enabled).toBeTrue();
+
+        // Set new bias and verify it works after cooldown
         component.biasControl.setValue('b');
         tick(BIAS_DEBOUNCE);
-        expect(setBiasSpy).toHaveBeenCalledTimes(1);
 
-        // Fast-forward to complete the cooldown period
-        tick(BIAS_COOLDOWN);
-
-        // Set the new bias
-        component.biasControl.setValue('c');
-        tick(BIAS_DEBOUNCE);
         expect(setBiasSpy).toHaveBeenCalledTimes(2);
-        expect(setBiasSpy).toHaveBeenCalledWith('c');
+        expect(setBiasSpy).toHaveBeenCalledWith('b');
     }));
 
     it('Should disable input during cooldown period and enable after', fakeAsync(() => {
+        component.startPollingGrid();
         gridService.setBias.and.returnValue(of({ message: 'Bias set successfully' }));
 
         // Make sure the input is enabled initially
@@ -166,6 +166,7 @@ describe('GridComponent', () => {
     }));
 
     it('Should correctly countdown during cooldown period', fakeAsync(() => {
+        component.startPollingGrid();
         gridService.setBias.and.returnValue(of({ message: 'Bias set successfully' }));
 
         // Set initial bias
@@ -193,14 +194,15 @@ describe('GridComponent', () => {
     }));
 
     it('Should handle grid service errors gracefully', fakeAsync(() => {
-        gridService.getGrid.and.returnValue(throwError(() => new Error('Network error')));
-        component.startGridGeneration();
+        gridService.getPollingGrid.and.returnValue(throwError(() => new Error('Network error')));
+        component.startPollingGrid();
         tick(POLLING_INTERVAL);
         expect(component.grid).toEqual(Array(10).fill(null).map(() => Array(10).fill('')));
     }));
 
     it('Should handle empty bias input correctly', fakeAsync(() => {
-        const setBiasSpy = gridService.setBias.and.returnValue(of({ message: 'Bias cleared' }));
+        component.startPollingGrid();
+        const setBiasSpy = gridService.setBias.and.returnValue(of({ message: 'Bias set successfully' }));
         component.biasControl.setValue('');
         tick(BIAS_DEBOUNCE);
         expect(setBiasSpy).toHaveBeenCalledWith('');
@@ -214,11 +216,10 @@ describe('GridComponent', () => {
         };
 
         gridService.getPollingGrid.and.returnValue(of(updatedResponse));
-        component.startGridGeneration();
+        component.startPollingGrid();
         tick();
 
         expect(component.timestamp).toBe(updatedResponse.timestamp);
-        expect(component.secretCode).toBe(updatedResponse.secret);
     }));
 
     it('Should cleanup interval timer on component destroy', fakeAsync(() => {
@@ -240,6 +241,7 @@ describe('GridComponent', () => {
     }));
 
     it('Should handle rapid bias value changes correctly', fakeAsync(() => {
+        component.startPollingGrid();
         const setBiasSpy = gridService.setBias.and.returnValue(of({ message: 'Bias set successfully' }));
 
         component.biasControl.setValue('a');

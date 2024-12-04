@@ -1,10 +1,10 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { HttpTestingController } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { GridService } from './grid.service';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+
 import { BiasResponse, GridResponse } from '../types/grid.types';
-import { API_URL } from '../utils/constants';
+import { API_URL, POLLING_INTERVAL } from '../utils/constants';
+import { GridService } from './grid.service';
 
 describe('GridService', () => {
     let service: GridService;
@@ -37,7 +37,7 @@ describe('GridService', () => {
             secret: '12'
         };
 
-        service.getGrid().subscribe(response => {
+        service.getPollingGrid().subscribe(response => {
             expect(response).toEqual(mockGridResponse);
         });
 
@@ -72,25 +72,27 @@ describe('GridService', () => {
             expect(response).toEqual(mockGridResponse);
             callCount++;
         });
-
-        // Request 1
-        tick(2000);
         const req1 = httpMock.expectOne(`${API_URL}/grid`);
         req1.flush(mockGridResponse);
 
-        // Request 2
-        tick(2000);
+        // Request 1
+        tick(POLLING_INTERVAL);
         const req2 = httpMock.expectOne(`${API_URL}/grid`);
         req2.flush(mockGridResponse);
+
+        // Request 2
+        tick(POLLING_INTERVAL);
+        const req3 = httpMock.expectOne(`${API_URL}/grid`);
+        req3.flush(mockGridResponse);
 
         subscription.unsubscribe();
         tick();
 
-        expect(callCount).toBe(2);
+        expect(callCount).toBe(3);
     }));
 
     it('Should handle http errors', () => {
-        service.getGrid().subscribe({
+        service.getPollingGrid().subscribe({
             error: (error) => {
                 expect(error.status).toBe(404);
             }

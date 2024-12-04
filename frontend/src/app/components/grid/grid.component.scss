@@ -1,76 +1,101 @@
 .container {
-    padding: 20px;
-    width: 60%;
+    padding: 16px;
+    max-width: 1200px;
     margin: 0 auto;
-    min-height: 100vh;
 }
 
 .header-fields {
     display: flex;
+    gap: 16px;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: center;
-    padding-bottom: 20px;
-    height: 100px;
-    margin-bottom: 20px;
-    gap: 20px;
+    margin: 0 200px 24px 200px;
 
-    mat-form-field {
-        margin-bottom: -1.25em;
+    @media (min-width: 769px) and (max-width: 1024px) {
+        margin: 0 100px 24px 100px;
     }
 
-    .generate-button {
-        min-height: 48px;
-        line-height: 48px;
-        padding: 0 24px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+        margin: 0 0 24px 0;
     }
-}
-
-.grid {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-.row {
-    display: flex;
-    width: 100%;
-}
-
-.cell {
-    width: 10%;
-    height: 40px;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.secret-field-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.secret-field {
-    display: inline-block;
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: center;
 }
 
 .bias-control {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 16px;
+    height: 56px;
+
+    mat-form-field {
+        width: 180px;
+
+        ::ng-deep {
+            input.mat-mdc-input-element {
+                text-align: left;
+            }
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+        mat-form-field {
+            width: 150px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        width: 80%;
+        margin: 0 auto;
+        justify-content: space-between;
+        height: auto;
+
+        mat-form-field {
+            width: 100%;
+        }
+    }
 }
 
-.cooldown-indicator {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+.grid {
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 0 16px;
+
+    .row {
+        display: flex;
+        justify-content: center;
+
+        .cell {
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+
+            @media (max-width: 480px) {
+                min-width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+        }
+    }
+}
+
+.generate-button {
+    width: 180px;
+    height: 48px;
+    border-radius: 0;
+    margin-top: 4px;
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+        width: 150px;
+    }
+
+    @media (max-width: 768px) {
+        width: 80%;
+        margin: 0 auto;
+        display: block;
+        height: 48px;
+    }
 }

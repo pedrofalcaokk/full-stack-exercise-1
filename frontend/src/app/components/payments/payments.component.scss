@@ -1,0 +1,107 @@
+.container {
+    padding: 24px;
+    margin: 0 auto;
+    max-width: 1200px;
+    width: 90%;
+    box-sizing: border-box;
+}
+
+.paymentForm {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+    max-width: 800px;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    mat-form-field {
+        width: 300px;
+
+        @media (max-width: 768px) {
+            width: 100%;
+        }
+    }
+
+    .addButton {
+        height: 56px;
+        width: 300px;
+        border-radius: 4px;
+
+        @media (max-width: 768px) {
+            width: 100%;
+            margin-top: 8px;
+        }
+    }
+}
+
+.table-container {
+    overflow-x: auto;
+    margin: 16px 0;
+    max-height: 65vh;
+    overflow-y: auto;
+
+    @media (max-width: 768px) {
+        max-height: 500px;
+    }
+
+    mat-table {
+        width: 100%;
+        background-color: var(--mat-sys-primary-container);
+    }
+
+    .mat-header-row {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--mat-sys-primary-container);
+        // Add these properties for better stickiness
+        min-height: 48px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .mat-column-name {
+        min-width: 120px;
+        flex: 1;
+    }
+
+    .mat-column-amount {
+        min-width: 80px;
+        flex: 0.5;
+        text-align: center;
+    }
+
+    .mat-column-code {
+        min-width: 80px;
+        flex: 0.5;
+        text-align: center;
+    }
+
+    .mat-column-gridValues {
+        min-width: 240px;
+        flex: none;
+    }
+}
+
+.mini-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 16px);
+    gap: 1px;
+    //background: #e0e0e0;
+    padding: 4px;
+    width: fit-content;
+    margin: 0 auto;
+
+    .grid-cell {
+        font-size: 12px;
+        height: 16px;
+        width: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--mat-sys-outline);
+    }
+}

@@ -1,6 +1,6 @@
 # Backend API
 
-A Node.js/Express API that generates and manages a character grid with a possible bias.
+A Node.js/Express API that generates and manages a character grid with a possible bias, along with payment processing capabilities.
 
 ## Tech Stack
 - Node.js
@@ -13,6 +13,7 @@ A Node.js/Express API that generates and manages a character grid with a possibl
 - Automatic grid generation with value refresh at specific intervals
 - Configurable bias with a set weight percentage
 - Secret code generation
+- Payment processing
 
 ## Getting Started
 
@@ -52,7 +53,7 @@ Returns the current state of the grid.
 {
     "values": string[][],     // 10x10 grid of characters
     "timestamp": string,      // Grid creation timestamp
-    "secret": string         // 2-digit secret code
+    "secret": string          // 2-digit secret code
 }
 ```
 
@@ -83,11 +84,43 @@ Sets a bias character that will appear more frequently in the grid.
 }
 ```
 
-**Constraints:**
+### GET /payments
+Returns all registered payments.
 
+**Response**
+
+```json
+{
+  "payments": [
+    {
+        "name": string,          // Payment name
+        "amount": number,        // Payment amount
+        "secret": string,        // Secret code at time of payment
+        "gridValues": string[][] // Grid values at time of payment
+    }
+  ]
+}
+```
+
+### POST /payments
+Creates a new payment.
+
+**Request Body:**
+
+```json
+{
+    "name": string,     // Payment name (3-100 characters)
+    "amount": number,   // Payment amount (minimum 1)
+    "secret": string    // Current secret code
+}
+```
+
+**Constraints**
 - Bias must be a single character from the allowed character set (a-z)
 - 4-second cooldown period between bias changes
-- Invalid characters return 400 status with error message
+- Payment names must be between 3 and 100 characters
+- Payment amounts must be greater than 0
+- Secret code must be valid at time of payment creation
 
 ## Project Structure
 ```

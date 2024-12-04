@@ -1,0 +1,33 @@
+mat-sidenav-container {
+    height: 100vh;
+}
+
+mat-sidenav {
+    width: 250px;
+}
+
+.nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+.menu-button {
+    display: none;
+
+    @media (max-width: 768px) {
+        display: block;
+    }
+}
+
+.desktop-menu {
+    display: block;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+}

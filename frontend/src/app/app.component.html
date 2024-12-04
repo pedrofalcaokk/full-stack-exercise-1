@@ -1,3 +1,25 @@
-<app-grid></app-grid>
+<mat-sidenav-container>
+    <mat-sidenav #sidenav mode="over">
+        <mat-nav-list>
+            <a mat-list-item routerLink="/" (click)="sidenav.close()">Grid</a>
+            <a mat-list-item routerLink="/payments" (click)="sidenav.close()">Payments</a>
+        </mat-nav-list>
+    </mat-sidenav>
 
-<router-outlet />
+    <mat-sidenav-content>
+        <mat-toolbar class="nav-bar">
+            <button mat-icon-button (click)="sidenav.toggle()" class="menu-button">
+                <mat-icon>menu</mat-icon>
+            </button>
+            <span>Frontend</span>
+            <span class="spacer"></span>
+            <div class="desktop-menu">
+                <button mat-button routerLink="/" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{exact: true}">Grid</button>
+                <button mat-button routerLink="/payments" routerLinkActive="active">Payments</button>
+            </div>
+        </mat-toolbar>
+
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>

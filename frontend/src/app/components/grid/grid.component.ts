@@ -12,18 +12,18 @@ import { GridService } from '../../services/grid.service';
 import { GridResponse } from '../../types/grid.types';
 import { BIAS_COOLDOWN, BIAS_DEBOUNCE } from '../../utils/constants';
 import { ClockComponent } from '../clock/clock.component';
+import { GridSecretComponent } from '../grid-secret/grid-secret.component';
 
 @Component({
     selector: 'app-grid',
     standalone: true,
-    imports: [ClockComponent, CommonModule, MatButtonModule, MatIconModule, MatInputModule, MatProgressSpinnerModule, ReactiveFormsModule],
+    imports: [ClockComponent, CommonModule, GridSecretComponent, MatButtonModule, MatIconModule, MatInputModule, MatProgressSpinnerModule, ReactiveFormsModule],
     templateUrl: './grid.component.html',
     styleUrl: './grid.component.scss'
 })
 export class GridComponent implements OnInit, OnDestroy {
     public grid: string[][] = [];
     public timestamp: string = '';
-    public secretCode: string = '';
     public biasControl: FormControl = new FormControl('');
     public cooldownRemaining: number = 0;
     public gridSubscription!: Subscription;
@@ -38,34 +38,20 @@ export class GridComponent implements OnInit, OnDestroy {
 
         // Set the bias if the input changes values
         this.biasSubscription = this.biasControl.valueChanges.pipe(
-            debounceTime(BIAS_DEBOUNCE), // Wait x ms after the last keystroke before emitting
-            distinctUntilChanged(), // Only emit if value is different from the previous one
-            throttleTime(BIAS_COOLDOWN) // Enforce a cooldown period
+            debounceTime(BIAS_DEBOUNCE),
+            distinctUntilChanged()
         ).subscribe((value: string) => {
-            this.gridService.setBias(value ?? '').subscribe();
-            this.biasControl.disable();
-            this.cooldownRemaining = BIAS_COOLDOWN / 1000;
-            this.cooldownTimer = setInterval(() => {
-                this.cooldownRemaining--;
-                if (this.cooldownRemaining <= 0) {
-                    clearInterval(this.cooldownTimer);
-                    this.biasControl.enable();
-                }
-            }, 1000);
+            if (this.gridSubscription) {
+                this.setBias(value);
+            }
         });
     }
 
-    public startGridGeneration() {
-        this.gridService.getGrid().subscribe({
-            next: (response) => {
-                this.updateGridState(response);
-                this.startPollingGrid();
-            },
-            error: () => this.resetGridState()
-        });
-    }
+    public startPollingGrid(): void {
+        if (this.biasControl.value) {
+            this.setBias(this.biasControl.value);
+        }
 
-    private startPollingGrid(): void {
         this.gridSubscription = this.gridService.getPollingGrid().subscribe({
             next: (response: GridResponse) => {
                 this.updateGridState(response);
@@ -74,16 +60,27 @@ export class GridComponent implements OnInit, OnDestroy {
         });
     }
 
+    private setBias(value: string): void {
+        this.gridService.setBias(value ?? '').subscribe();
+        this.biasControl.disable();
+        this.cooldownRemaining = BIAS_COOLDOWN / 1000;
+        this.cooldownTimer = setInterval(() => {
+            this.cooldownRemaining--;
+            if (this.cooldownRemaining <= 0) {
+                clearInterval(this.cooldownTimer);
+                this.biasControl.enable();
+            }
+        }, 1000);
+    }
+
     private updateGridState(response: GridResponse): void {
         this.grid = response.values;
         this.timestamp = response.timestamp;
-        this.secretCode = response.secret;
     }
 
     private resetGridState(): void {
         this.grid = Array(10).fill(null).map(() => Array(10).fill(''));
         this.timestamp = '';
-        this.secretCode = '';
     }
 
     ngOnDestroy() {
