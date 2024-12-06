@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 
+import { GridService } from '../services/gridService';
 import { HttpError } from '../utils/errors';
-import { getGridValues, isGridInitialized } from './grid';
 
 interface Payment {
     name: string;
@@ -21,8 +21,9 @@ router.get('/', (req: Request, res: Response) => {
 // PUT endpoint to add a new payment
 router.post('/add', (req: Request, res: Response) => {
     try {
+        const gridService: GridService = GridService.getInstance();
         // Check if the grid is initialized and up to date
-        if (!isGridInitialized()) {
+        if (!gridService.isGridInitialized()) {
             res.status(500).json({ error: "Grid is not initialized or is not up to date" });
             return;
         }
@@ -37,7 +38,7 @@ router.post('/add', (req: Request, res: Response) => {
         validatePaymentAmount(req.body.amount);
 
         // Get the grid values
-        const gridValues = getGridValues(req.body.secret);
+        const gridValues = gridService.getGridValues(req.body.secret);
         if (!gridValues) {
             res.status(401).json({ error: "Invalid secret code" });
             return;
