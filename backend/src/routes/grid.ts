@@ -17,7 +17,7 @@ router.get('/', (req: Request, res: Response) => {
     });
 });
 
-// PUT endpoint to update the bias and refresh the grid
+// Endpoint to update the bias and refresh the grid
 router.post('/set-bias', (req: Request, res: Response) => {
     try {
         GridService.getInstance().setBias(req.body.bias);

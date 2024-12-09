@@ -11,7 +11,7 @@ router.get('/', (req: Request, res: Response) => {
     res.json({ payments });
 });
 
-// PUT endpoint to add a new payment
+// Endpoint to add a new payment
 router.post('/add', (req: Request, res: Response) => {
     try {
         // Validate the request body
