@@ -2,6 +2,9 @@
 
 The objective of this exercise is to create a full-stack application.
 
+[![Backend CI](https://github.com/pedrofalcaokk/full-stack-exercise-1/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/pedrofalcaokk/full-stack-exercise-1/actions/workflows/backend-tests.yml)
+[![Frontend Tests](https://github.com/pedrofalcaokk/full-stack-exercise-1/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/pedrofalcaokk/full-stack-exercise-1/actions/workflows/frontend-tests.yml)
+
 ## Phase 1
 
 ### Grid
