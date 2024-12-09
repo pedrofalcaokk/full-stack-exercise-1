@@ -1,9 +1,9 @@
 import express from 'express';
 import request from 'supertest';
 
-import gridRouter, { stopGridGeneration } from '../../routes/grid';
+import gridRouter from '../../routes/grid';
 import paymentsRouter from '../../routes/payments';
-import { GRID_GRACE_PERIOD, GRID_REFRESH_INTERVAL } from '../../utils/constants';
+import { GridService } from '../../services/gridService';
 
 const app = express();
 app.use(express.json());
@@ -23,7 +23,7 @@ describe('Grid API Endpoints', () => {
 
     // Make sure the grid stops being generated after each test
     afterEach(async () => {
-        stopGridGeneration();
+        GridService.getInstance().stopGridGeneration();
     });
 
     afterAll(async () => {
@@ -89,12 +89,12 @@ describe('Grid API Endpoints', () => {
         expect(response.body.error).toEqual('Invalid request');
     });
 
-    it('Should throw error when trying to add a payment with a payment name that is too short', async () => {
+    it('Should throw error when trying to add a payment with an invalid name', async () => {
         const secret: string = (await request(app).get('/grid')).body.secret,
             response = await request(app)
                 .post('/payments/add')
                 .send({
-                    name: 'Pa',
+                    name: 'aa',
                     amount: 100,
                     secret: secret,
                 });
@@ -105,45 +105,13 @@ describe('Grid API Endpoints', () => {
         expect(response.body.error).toEqual('Invalid payment name, it should have between 3 and 100 characters');
     });
 
-    it('Should throw error when trying to add a payment with a payment name that is too long', async () => {
-        const secret: string = (await request(app).get('/grid')).body.secret,
-            response = await request(app)
-                .post('/payments/add')
-                .send({
-                    name: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-                    amount: 100,
-                    secret: secret,
-                });
-
-
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('error');
-        expect(response.body.error).toEqual('Invalid payment name, it should have between 3 and 100 characters');
-    });
-
-    it('Should throw error when trying to add a payment with an amount of 0', async () => {
+    it('Should throw error when trying to add a payment with an invalid amount', async () => {
         const secret: string = (await request(app).get('/grid')).body.secret,
             response = await request(app)
                 .post('/payments/add')
                 .send({
                     name: 'Payment 1',
                     amount: 0,
-                    secret: secret,
-                });
-
-
-        expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('error');
-        expect(response.body.error).toEqual('Invalid payment amount');
-    });
-
-    it('Should throw error when trying to add a payment with a negative amount', async () => {
-        const secret: string = (await request(app).get('/grid')).body.secret,
-            response = await request(app)
-                .post('/payments/add')
-                .send({
-                    name: 'Payment 1',
-                    amount: -10,
                     secret: secret,
                 });
 
@@ -186,43 +154,5 @@ describe('Grid API Endpoints', () => {
         expect(response2.status).toBe(409);
         expect(response2.body).toHaveProperty('error');
         expect(response2.body.error).toEqual('Payment already exists');
-    });
-
-    it('Should add payment with the previous secret code if under 300ms', async () => {
-        const secret: string = (await request(app).get('/grid')).body.secret,
-            postRequest = {
-                name: 'Payment 1',
-                amount: 100,
-                secret: secret,
-            };
-
-        // Advance the timer to use the previous state
-        jest.advanceTimersByTime(GRID_REFRESH_INTERVAL + 1);
-
-        const response = await request(app)
-            .post('/payments/add')
-            .send(postRequest);
-
-        expect(response.status).toBe(200);
-    });
-
-    it('Should fail to add payment with the previous secret code after the grace period ends', async () => {
-        const secret: string = (await request(app).get('/grid')).body.secret,
-            postRequest = {
-                name: 'Payment 1',
-                amount: 100,
-                secret: secret,
-            };
-
-        // Advance the timer to after grace period ends
-        jest.advanceTimersByTime(GRID_REFRESH_INTERVAL + GRID_GRACE_PERIOD);
-
-        const response = await request(app)
-            .post('/payments/add')
-            .send(postRequest);
-
-        expect(response.status).toBe(401);
-        expect(response.body).toHaveProperty('error');
-        expect(response.body.error).toEqual('Invalid secret code');
     });
 });

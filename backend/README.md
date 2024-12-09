@@ -51,9 +51,9 @@ Returns the current state of the grid.
 **Response:**
 ```json
 {
-    "values": string[][],     // 10x10 grid of characters
-    "timestamp": string,      // Grid creation timestamp
-    "secret": string          // 2-digit secret code
+    "values": [[], []], // string[][] - 10x10 grid of characters
+    "timestamp": "",    // string     - Grid creation timestamp
+    "secret": ""        // string     - 2-digit secret code
 }
 ```
 
@@ -64,7 +64,7 @@ Sets a bias character that will appear more frequently in the grid.
 
 ```json
 {
-    "bias": string  // Single character to use as bias
+    "bias": "" // string - Single character to use as bias
 }
 ```
 
@@ -93,10 +93,10 @@ Returns all registered payments.
 {
   "payments": [
     {
-        "name": string,          // Payment name
-        "amount": number,        // Payment amount
-        "secret": string,        // Secret code at time of payment
-        "gridValues": string[][] // Grid values at time of payment
+        "name":       "",       // string,    - Payment name
+        "amount":     "",       // number,    - Payment amount
+        "secret":     "",       // string,    - Secret code at time of payment
+        "gridValues": [[], []], // string[][] - Grid values at time of payment
     }
   ]
 }
@@ -109,9 +109,9 @@ Creates a new payment.
 
 ```json
 {
-    "name": string,     // Payment name (3-100 characters)
-    "amount": number,   // Payment amount (minimum 1)
-    "secret": string    // Current secret code
+    "name":   "", // string - Payment name (3-100 characters)
+    "amount": 00, // number - Payment amount (minimum 1)
+    "secret": "", // string - Current secret code
 }
 ```
 
@@ -127,6 +127,8 @@ Creates a new payment.
 backend/
 ├── src/
 │   ├── routes/      # API routes
+│   ├── services/    # service layer for business logic
+│   └── types/       # Type files
 │   ├── utils/       # Utility functions
 │   └── tests/       # Test files
 ├── jest.config.js   # Test configuration
